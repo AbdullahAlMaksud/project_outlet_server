@@ -1,5 +1,5 @@
 const express = require("express");
-const cors = require('cors');
+const cors = require("cors");
 const app = express();
 const port = 3000;
 require("dotenv").config();
@@ -31,12 +31,37 @@ async function run() {
     //--------------------------------------------
 
     app.get("/products", async (req, res) => {
-      try {
-        const products = await productsCollection.find().toArray();
-        res.json(products);
-      } catch {
-        res.status(500).send("Error fetching products");
+      const page = parseInt(req.query.page) || 1;
+      const limit = parseInt(req.query.limit) || 12;
+      const search = req.query.search || '';
+      const sortBy = req.query.sortBy || ''; // new sort parameter
+
+      console.log(`Received page: ${page}, limit: ${limit}, search: ${search}, sortBy: ${sortBy}`);
+
+      const skip = (page - 1) * limit;
+      const totalProducts = await productsCollection.countDocuments({ name: { $regex: search, $options: 'i' } });
+
+      // Define sort options
+      let sortOptions = {};
+      if (sortBy === 'priceAsc') {
+        sortOptions = { price: 1 }; // Low to High
+      } else if (sortBy === 'priceDesc') {
+        sortOptions = { price: -1 }; // High to Low
+      } else if (sortBy === 'dateAsc') {
+        sortOptions = { created_at: 1 }; // Old to New
+      } else if (sortBy === 'dateDesc') {
+        sortOptions = { created_at: -1 }; // New to Old
       }
+
+      const products = await productsCollection
+        .find({ name: { $regex: search, $options: 'i' } })
+        .sort(sortOptions) // Apply sorting
+        .skip(skip)
+        .limit(limit)
+        .toArray();
+
+      const totalPages = Math.ceil(totalProducts / limit);
+      res.json({ products, totalProducts, totalPages });
     });
 
     //--------------------------------------------

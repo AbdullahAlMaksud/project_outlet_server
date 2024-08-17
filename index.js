@@ -64,6 +64,18 @@ async function run() {
       res.json({ products, totalProducts, totalPages });
     });
 
+    app.get("/categories", async (req, res) => {
+      try {
+        const categories = await productsCollection.aggregate([
+          { $group: { _id: "$category" } },
+          { $project: { _id: 0, category: "$_id" } }
+        ]).toArray();
+        res.json({ categories: categories.map(cat => cat.category) });
+      } catch (error) {
+        console.error(error);
+        res.status(500).send('Server Error');
+      }
+    });
     //--------------------------------------------
     app.get("/", (req, res) => {
       res.send("Outlet Server is running...");

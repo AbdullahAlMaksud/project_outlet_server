@@ -76,6 +76,20 @@ async function run() {
         res.status(500).send('Server Error');
       }
     });
+
+    app.get("/brands", async (req, res) => {
+      try {
+        const brands = await productsCollection.aggregate([
+          { $group: { _id: "$brand" } },
+          { $project: { _id: 0, brand: "$_id" } }
+        ]).toArray();
+        res.json({ brands: brands.map(b => b.brand) });
+      } catch (error) {
+        console.error(error);
+        res.status(500).send('Server Error');
+      }
+    });
+    
     //--------------------------------------------
     app.get("/", (req, res) => {
       res.send("Outlet Server is running...");

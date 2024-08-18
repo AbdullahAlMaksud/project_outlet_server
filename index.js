@@ -136,7 +136,16 @@ async function run() {
         res.status(500).json({ message: "Server Error" });
       }
     });
-
+    // CustomerReview Name API
+    app.get("/reviewData", async (req, res) => {
+      try {
+        const reviews = await reviewData.find().toArray();
+        res.json(reviews);
+      } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: "Server Error" });
+      }
+    });
 
 
     // Root route to check server status

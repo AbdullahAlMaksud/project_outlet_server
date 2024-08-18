@@ -18,33 +18,27 @@ To get started with the Outlet Server, follow these steps:
 
 1. **Clone the Repository**
 
-```
-   git clone https://github.com/AbdullahAlMaksud/project_outlet_server.git
-   cd project_outlet_server```
+```git clone https://github.com/AbdullahAlMaksud/project_outlet_server.git ```
+```cd project_outlet_server```
    
-####  Install Dependencies
+### Install Dependencies
 
-```
-npm install
-```
+``` npm install ```
 
-##Set Up Environment Variables
+## Set Up Environment Variables
 
 Create a `.env` file in the root directory of the project with the following content:
 
-```
-DB_USER=<your-mongodb-username>
-DB_PASS=<your-mongodb-password>
-```
+```DB_USER=<your-mongodb-username>```
+```DB_PASS=<your-mongodb-password> ```
+
 Replace `<your-mongodb-username>` and `<your-mongodb-password>` with your MongoDB credentials.
 
 ## Running the Server
 
 To start the server, run:
 
-```
-npm start
-```
+``` npm start ```
 The server will run on http://localhost:3000.
 
 ##Contact

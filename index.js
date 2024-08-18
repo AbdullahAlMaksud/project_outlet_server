@@ -6,19 +6,18 @@ require("dotenv").config();
 const app = express();
 const port = 3000;
 
-// Middleware to handle JSON requests
+
 app.use(express.json());
 
-// CORS configuration to allow requests from specific origin
 const corsOptions = {
-  origin: "http://localhost:5173", // Allow requests from your frontend
+  origin: ["http://localhost:5173", "http://localhost:5174", "https://project-outlet.web.app/"],
   methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
-  credentials: true, // Allow cookies or other credentials in requests
-  optionsSuccessStatus: 200, // Some legacy browsers choke on 204
+  credentials: true,
+  optionsSuccessStatus: 200,
 };
 app.use(cors(corsOptions));
 
-// MongoDB connection URI
+//----MongoDB connection URI
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.hjp9r.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0`;
 const client = new MongoClient(uri, {
   serverApi: {
@@ -31,15 +30,15 @@ const client = new MongoClient(uri, {
 async function run() {
   try {
     // Connect the client to the server
-    await client.connect();
+    // await client.connect();
 
-    // Database and collection
+    //----Database and collection
     const database = client.db("outlet");
     const productsCollection = database.collection("products");
     const bannerCollection = database.collection("bannerData");
     const reviewData = database.collection("customerReview");
 
-    // Product API
+    //----Product API
     app.get("/products", async (req, res) => {
       try {
         const page = parseInt(req.query.page) || 1;
@@ -94,7 +93,7 @@ async function run() {
       }
     });
 
-    // Categories Name API
+    //----Categories Name API
     app.get("/categories", async (req, res) => {
       try {
         const categories = await productsCollection
@@ -110,7 +109,7 @@ async function run() {
       }
     });
 
-    // Brand Name API
+    //----Brand Name API
     app.get("/brands", async (req, res) => {
       try {
         const brands = await productsCollection
@@ -126,7 +125,7 @@ async function run() {
       }
     });
 
-    // BannerData Name API
+    //----BannerData Name API
     app.get("/bannerData", async (req, res) => {
       try {
         const banners = await bannerCollection.find().toArray();
@@ -136,7 +135,8 @@ async function run() {
         res.status(500).json({ message: "Server Error" });
       }
     });
-    // CustomerReview Name API
+
+    //----CustomerReview Name API
     app.get("/reviewData", async (req, res) => {
       try {
         const reviews = await reviewData.find().toArray();
@@ -148,7 +148,7 @@ async function run() {
     });
 
 
-    // Root route to check server status
+    //----Root route to check server status
     app.get("/", (req, res) => {
       res.send("Outlet Server is running...");
     });

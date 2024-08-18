@@ -18,13 +18,13 @@ To get started with the Outlet Server, follow these steps:
 
 1. **Clone the Repository**
 
-```bash
+```
    git clone https://github.com/AbdullahAlMaksud/project_outlet_server.git
    cd project_outlet_server```
    
 ####  Install Dependencies
 
-```bash
+```
 npm install
 ```
 

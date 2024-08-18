@@ -4,20 +4,12 @@ const { MongoClient, ServerApiVersion } = require("mongodb");
 require("dotenv").config();
 
 const app = express();
-const port = 3000;
-
+const port = process.env.PORT || 3000; 
 
 app.use(express.json());
+app.use(cors());
 
-const corsOptions = {
-  origin: ["http://localhost:5173", "http://localhost:5174", "https://project-outlet.web.app/"],
-  methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
-  credentials: true,
-  optionsSuccessStatus: 200,
-};
-app.use(cors(corsOptions));
-
-//----MongoDB connection URI
+// MongoDB connection URI
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.hjp9r.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0`;
 const client = new MongoClient(uri, {
   serverApi: {
@@ -29,16 +21,13 @@ const client = new MongoClient(uri, {
 
 async function run() {
   try {
-    // Connect the client to the server
-    // await client.connect();
-
-    //----Database and collection
+    // Database and collections
     const database = client.db("outlet");
     const productsCollection = database.collection("products");
     const bannerCollection = database.collection("bannerData");
     const reviewData = database.collection("customerReview");
 
-    //----Product API
+    // Product API
     app.get("/products", async (req, res) => {
       try {
         const page = parseInt(req.query.page) || 1;
@@ -50,13 +39,9 @@ async function run() {
         const minPrice = parseFloat(req.query.minPrice) || 0;
         const maxPrice = parseFloat(req.query.maxPrice) || 10000;
 
-        console.log(
-          `Received page: ${page}, limit: ${limit}, search: ${search}, sortBy: ${sortBy}, category: ${category}, brand: ${brand}, minPrice: ${minPrice}, maxPrice: ${maxPrice}`
-        );
-
         const skip = (page - 1) * limit;
 
-        // Build the query
+        //----Build the query
         const query = {
           name: { $regex: search, $options: "i" },
           ...(category && { category: { $in: category.split(",") } }),
@@ -66,7 +51,7 @@ async function run() {
 
         const totalProducts = await productsCollection.countDocuments(query);
 
-        // Define sort options
+        //----Define sort options
         let sortOptions = {};
         if (sortBy === "priceAsc") {
           sortOptions = { price: 1 }; // Low to High
@@ -93,7 +78,7 @@ async function run() {
       }
     });
 
-    //----Categories Name API
+    // Categories API
     app.get("/categories", async (req, res) => {
       try {
         const categories = await productsCollection
@@ -109,7 +94,7 @@ async function run() {
       }
     });
 
-    //----Brand Name API
+    // Brands API
     app.get("/brands", async (req, res) => {
       try {
         const brands = await productsCollection
@@ -125,7 +110,7 @@ async function run() {
       }
     });
 
-    //----BannerData Name API
+    // Banner Data API
     app.get("/bannerData", async (req, res) => {
       try {
         const banners = await bannerCollection.find().toArray();
@@ -136,7 +121,7 @@ async function run() {
       }
     });
 
-    //----CustomerReview Name API
+    // Customer Review API
     app.get("/reviewData", async (req, res) => {
       try {
         const reviews = await reviewData.find().toArray();
@@ -147,8 +132,7 @@ async function run() {
       }
     });
 
-
-    //----Root route to check server status
+    // Root route to check server status
     app.get("/", (req, res) => {
       res.send("Outlet Server is running...");
     });
@@ -162,9 +146,8 @@ async function run() {
     console.log(
       "Pinged your deployment. You successfully connected to MongoDB!"
     );
-  } finally {
-    // Ensure that the client will close when you finish/error
-    // await client.close(); // Uncomment if you want to close the client when finished
+  } catch (error) {
+    console.error("Error starting the server:", error);
   }
 }
 
